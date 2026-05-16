@@ -1,6 +1,5 @@
 # Brief Context
 
-
 ## Project Essence
 
 **Mini Docker** is a learning-oriented implementation of Linux container primitives built in Go. It aims to demonstrate how containers work from the ground up by directly interacting with kernel features.
@@ -30,13 +29,4 @@
 6. **If Denied**: If the user denies updating the document, the agent should proceed only after documenting the discrepancy in a short note.
 7. **Minimal Edits**: Keep edits factual, minimal, and human-readable.
 
-## Maintenance
-
-- **Owner**: USER
-- **Last updated**: 2026-05-11
-
 ---
-
-## Changelog
-
-- **2026-05-11**: Initial context synchronization from Architecture.md. Added 200-line constraint. (Antigravity)

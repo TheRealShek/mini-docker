@@ -10,6 +10,9 @@ completely lost.
 
 ---
 
+> You can Manually go to understand Topic by Topic or Read this-
+> [What Your Container Runtime Actually Does When You Type docker run](https://therealshek.medium.com/what-your-container-runtime-actually-does-when-you-type-docker-run-089f13fbdccb)
+
 ## 1. How Linux Creates Processes
 
 Before containers make sense, processes need to make sense.

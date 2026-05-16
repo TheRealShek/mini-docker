@@ -60,39 +60,7 @@ No registry pull yet — manual import only.
 
 ## Execution Flow
 
-```
-
-run alpine /bin/sh
-│
-▼
-cli.ParseRun()
-│ extracts: image, command, limits
-▼
-runtime.Run(config)
-│
-├── image.Prepare() → untar alpine → images/alpine/
-│
-├── rootfs.Mount() → overlayfs: lower=alpine, upper=scratch/id/
-│
-├── cmd = exec.Cmd → re-exec self as "minidocker-init"
-│ SysProcAttr.Cloneflags → NEWPID | NEWNS | NEWUTS | NEWNET
-│
-├── cmd.Start() → clones new namespaces, forks child
-│
-├── cgroups.Apply(cmd.Pid) → writes limits to /sys/fs/cgroup/minidocker/<id>/
-│
-├── network.Setup(cmd.Pid) → veth pair, IP assignment, NAT
-│
-└── cmd.Wait() → blocks until container exits, then cleanup
-│
-▼
-[inside child process — minidocker-init]
-├── rootfs.PivotRoot() → pivot_root into overlayfs merged dir
-├── proc.MountAll() → /proc /sys /dev
-├── syscall.Sethostname()
-└── syscall.Exec("/bin/sh", ...) → replaces init with actual cmd
-
-```
+Mentioned in Docs/Diagrams/ExecutionFlow.md
 
 ---
 
