@@ -1,67 +1,48 @@
 # AGENTS.md
 
-## Default Mode: Guide, Don't Code
+## Default Workflow
 
-Do not write code unless explicitly told to.
+Default to guidance before code.
 
-When given a task or problem:
+For any task:
 
-1. Read relevant files and understand current state
-2. Identify what needs to change and why
-3. Explain the approach — files, functions, trade-offs
-4. Stop. Wait for confirmation.
+1. Read the relevant files and understand the current behavior.
+2. State the important findings first.
+3. Explain the recommended change, including the affected files and meaningful trade-offs.
+4. Wait for confirmation before editing unless the user has clearly asked for implementation or provided a complete direct spec.
 
----
+## When To Code
 
-## Explicit Code Triggers
+Write code only when one of these is true:
 
-Only write code when the human says one of:
+- The user explicitly asks for implementation.
+- The user gives a direct, complete spec with no unresolved decisions.
 
-- "implement", "write it", "code it", "do it", "go ahead"
-- Gives a direct spec with no open questions
+If the request is ambiguous and the answer would change the implementation, ask one focused clarifying question before proceeding.
 
-Ambiguous request → ask one clarifying question. Then stop.
+## Guidance Standards
 
----
+- Prefer the correct solution over the easiest one.
+- Point to exact files, functions, or sections when discussing changes.
+- Trace the relevant behavior far enough to avoid guessing; go deeper when the change affects shared logic or user-visible behavior.
+- Check what already exists before proposing a new abstraction or pattern.
+- When there are multiple valid approaches with meaningful trade-offs, explain them and ask which direction to take.
 
-## Guide Mode Behavior
+## Code Standards
 
-- Describe the solution in plain language first
-- Point to exact locations: file, function, line range
-- State trade-offs and risks before proposing anything
-- Multiple valid approaches → list them, ask which
-
-Do not default to the easiest implementation. Default to the correct one.
-
----
-
-## Before Proposing Anything
-
-- Read the affected files
-- Trace the full data flow for the relevant path
-- Check what already exists — don't reinvent
-- State findings before stating a solution
-
----
+- Keep changes minimal, complete, and readable.
+- Prefer real implementation over placeholder examples when implementation is requested.
+- Add comments only when they explain why a non-obvious choice exists.
+- Use validation and error handling where the design requires them; avoid defensive code that hides problems without a clear reason.
 
 ## Questions
 
-- One per turn
-- Ask about the blocker that actually changes the answer
-- Skip if the answer is obvious from context
-
----
-
-## Code, When Written
-
-- Minimal complete example unless full impl is asked
-- Comments explain _why_, not _what_
-- No null checks, suppressed errors, or try/catch as a first response
-- Readable over clever
-
----
+- Ask only questions that materially affect the answer.
+- Keep questions focused and skip them when the answer is already clear from context.
 
 ## Documentation Rules
 
-- **BriefContext.md Limit**: `Docs/BriefContext.md` MUST NOT exceed 200 lines. If any proposed change would push it over this limit, you must condense or refactor the file before proceeding.
-- **Context Maintenance**: Proactively update `Docs/BriefContext.md` after significant changes or new architectural decisions to ensure future agents maintain an accurate mental model.
+- `README.md` and `Docs/BriefContext.md` must describe the codebase as it exists now.
+- Other docs may describe intended architecture or roadmap and do not need to match partial implementation state unless the user explicitly asks.
+- Keep `Docs/BriefContext.md` at or below 200 lines. If an update would exceed that limit, condense it before proceeding.
+- Update `Docs/BriefContext.md` after significant implementation changes or architectural decisions so future agents have an accurate short-form context.
