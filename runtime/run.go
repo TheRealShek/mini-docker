@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"syscall"
@@ -9,8 +10,15 @@ import (
 
 // Parent Side
 func Run() error {
+	ok, err := checkDirectoryExists("/tmp/alpine-rootfs")
+	if ok {
+		log.Println("alpine-rootfs exists")
+	} else {
+		log.Fatal(err)
+	}
+
 	fmt.Println("parent: spawning container...")
-	// relaunch same binary inside new namespaces
+	// This creates a NEW process running the SAME binary again.
 	cmd := exec.Command("/proc/self/exe")
 	cmd.Env = append(os.Environ(), "CONTAINER_INIT=1")
 
@@ -33,11 +41,68 @@ func Run() error {
 }
 
 // Child Side
-func ContainerInit() {
+/*
+lower/  -> (alpine-rootfs) internal base image layer
+upper/  -> internal writable container layer
+merged/ -> filesystem exposed to container
+*/
+func ContainerInit() error {
+	// MS_PRIVATE -> "Stop sharing mount events."
+	// MS_REC -> "Apply recursively to all submounts."
+	err := syscall.Mount(
+		"",
+		"/",
+		"",
+		syscall.MS_PRIVATE|syscall.MS_REC,
+		"",
+	)
+	if err != nil {
+		return err
+	}
 	fmt.Printf("child: inside init, pid=%d \n", os.Getpid())
 
-	// prepare a child thread
-	// Three args: path, argv (first element is program name), env.
-	syscall.Exec("/bin/sh", []string{"/bin/sh"}, os.Environ())
+	err = makeMultipleDirectories(
+		"/tmp/container/upper",
+		"/tmp/container/work",
+		"/tmp/container/merged",
+	)
+	if err != nil {
+		return err
+	}
 
+	// Combine lower + upper layers to merged filesystem
+	err = syscall.Mount(
+		"overlay",
+		"/tmp/container/merged",
+		"overlay",
+		0,
+		"lowerdir=/tmp/alpine-rootfs,upperdir=/tmp/container/upper,workdir=/tmp/container/work",
+	)
+	if err != nil {
+		return err
+	}
+
+	pivotRoot("/tmp/container/merged")
+
+	// Mount the Linux proc filesystem inside the container.
+	// /proc is not a normal directory on disk.
+	// The Linux kernel generates its contents dynamically.
+	err = syscall.Mount(
+		"proc",
+		"/proc",
+		"proc",
+		0,
+		"",
+	)
+	if err != nil {
+		return err
+	}
+
+	// syscall.Exec() replaces the CURRENT child runtime process.
+	// Three args: path, argv (first element is program name), env.
+	return syscall.Exec(
+		"/bin/sh",
+		[]string{"/bin/sh"},
+		os.Environ(),
+	)
 }

@@ -42,7 +42,8 @@ If the request is ambiguous and the answer would change the implementation, ask 
 
 ## Documentation Rules
 
-- `README.md` and `Docs/BriefContext.md` must describe the codebase as it exists now.
+- `README.md`, `Docs/Development.md`, and `Docs/BriefContext.md` must describe the codebase as it exists now.
 - Other docs may describe intended architecture or roadmap and do not need to match partial implementation state unless the user explicitly asks.
+- When the user says `sync the project`, inspect the current project changes using `git diff` plus any additional local inspection needed to get a complete picture, then update `README.md`, `Docs/Development.md`, and `Docs/BriefContext.md` so they accurately reflect the codebase as it exists now.
 - Keep `Docs/BriefContext.md` at or below 200 lines. If an update would exceed that limit, condense it before proceeding.
 - Update `Docs/BriefContext.md` after significant implementation changes or architectural decisions so future agents have an accurate short-form context.

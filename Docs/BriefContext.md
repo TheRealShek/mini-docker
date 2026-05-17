@@ -7,12 +7,12 @@
 - **Current Goal**: Build up a minimal container runtime incrementally, starting from isolated process execution without a background daemon.
 - **Currently Implemented**:
   - `main.go` branches execution based on the `CONTAINER_INIT` environment variable.
-  - `runtime.Run()` (parent) re-executes `/proc/self/exe` to create new PID, UTS, and mount namespaces.
-  - `runtime.ContainerInit()` (child) detects the `CONTAINER_INIT` flag and starts `/bin/sh`.
+  - `runtime.Run()` (parent) verifies a base rootfs, then re-executes `/proc/self/exe` to create new PID, UTS, and mount namespaces.
+  - `runtime.ContainerInit()` (child) isolates the mount namespace, mounts an overlayfs, applies `pivot_root`, mounts `/proc`, and starts `/bin/sh`.
   - Child stdio is connected to the invoking terminal.
 - **Not Yet Implemented**:
   - CLI command parsing beyond the current direct entry point.
-  - Cgroups, rootfs isolation, overlayfs, networking, image handling, and cleanup.
+  - Cgroups, networking, image pulling/unpacking, and automatic cleanup.
 
 ## Planned Direction
 
@@ -25,6 +25,7 @@
 
 ## Changelog
 
+- 2026-05-17: Updated the context to reflect the addition of mount namespace isolation, overlayfs, `pivot_root`, and `/proc` mounting.
 - 2026-05-16: Updated the brief context to reflect the newly implemented re-exec flow.
 - 2026-05-16: Updated the brief context to distinguish the current implemented runtime from the planned architecture.
 
