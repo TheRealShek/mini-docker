@@ -8,9 +8,18 @@ import (
 	"syscall"
 )
 
+var (
+	// Test seam: keep the rootfs path configurable so unit tests can point it at a temp directory.
+	alpineRootfsPath = "/tmp/alpine-rootfs"
+	// Test seam: let tests observe the built command without launching a child process.
+	runCommandFn = func(cmd *exec.Cmd) error {
+		return cmd.Run()
+	}
+)
+
 // Parent Side
 func Run() error {
-	ok, err := checkDirectoryExists("/tmp/alpine-rootfs")
+	ok, err := checkDirectoryExists(alpineRootfsPath)
 	if ok {
 		log.Println("alpine-rootfs exists")
 	} else {
@@ -18,6 +27,11 @@ func Run() error {
 	}
 
 	fmt.Println("parent: spawning container...")
+	return runCommandFn(newParentCommand())
+}
+
+func newParentCommand() *exec.Cmd {
+	// Separated from Run so tests can verify the command wiring without executing it.
 	// This creates a NEW process running the SAME binary again.
 	cmd := exec.Command("/proc/self/exe")
 	cmd.Env = append(os.Environ(), "CONTAINER_INIT=1")
@@ -37,7 +51,7 @@ func Run() error {
 			syscall.CLONE_NEWUTS | // container gets own hostname
 			syscall.CLONE_NEWNS, // container gets own mount table
 	}
-	return cmd.Run()
+	return cmd
 }
 
 // Child Side
